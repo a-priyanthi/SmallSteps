@@ -10,6 +10,19 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
+// If running in Vercel serverless environment, copy pre-seeded DB to writable /tmp
+if (config.IS_VERCEL) {
+  const seededDbPath = path.join(__dirname, '..', '..', 'data', 'small_steps.db');
+  if (!fs.existsSync(config.DB_PATH) && fs.existsSync(seededDbPath)) {
+    try {
+      fs.copyFileSync(seededDbPath, config.DB_PATH);
+      console.log('Copied pre-seeded SQLite DB to /tmp for Vercel serverless environment.');
+    } catch (e) {
+      console.warn('Could not copy pre-seeded database, will initialize fresh:', e.message);
+    }
+  }
+}
+
 const db = new DatabaseSync(config.DB_PATH);
 
 // Enable foreign keys and WAL mode for reliability

@@ -116,3 +116,43 @@ The database comes pre-seeded with sample accounts and directory listings across
 - `POST /api/reviews/:therapistId` — Parent submits verified review (rating 1–5 and feedback)
 
 ---
+
+## 🚀 Deploying to Vercel
+
+Small Steps is pre-configured for zero-config serverless deployment on Vercel:
+- **Serverless API**: Handled seamlessly by `api/index.js` exporting the Express app.
+- **Edge Static CDN**: `public/` assets (`index.html`, `css/`, `js/`) are served directly via Vercel's global CDN.
+- **Serverless Database**: On cold start, the database is mounted in `/tmp/small_steps.db` and auto-seeded with rich demo data if empty.
+
+### Option 1: Deploy via Vercel Dashboard (Recommended)
+
+1. Go to [vercel.com](https://vercel.com) and log in with your GitHub account.
+2. Click **"Add New..."** -> **"Project"**.
+3. Import your repository: **`a-priyanthi/SmallSteps`**.
+4. Configure Project:
+   - **Framework Preset**: `Other` (detected automatically)
+   - **Root Directory**: `./`
+   - **Build Command**: Leave empty (or default)
+   - **Output Directory**: Leave empty
+   - **Install Command**: `npm install`
+5. Click **Deploy**.
+6. Once deployed, Vercel gives you a live production URL (e.g., `https://small-steps-xyz.vercel.app`).
+
+### Option 2: Deploy via Vercel CLI
+
+```bash
+# Login to Vercel
+npx vercel login
+
+# Deploy to preview
+npx vercel
+
+# Deploy to production
+npx vercel --prod
+```
+
+---
+
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
+
