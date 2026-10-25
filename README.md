@@ -4,7 +4,7 @@
 
 ---
 
-## 🌟 Overview
+##  Overview
 
 **Small Steps** provides a dedicated, calming, and affirming space for families and pediatric activity specialists (occupational therapists, adaptive swim coaches, music therapists, movement instructors, and developmental paediatricians).
 
@@ -63,36 +63,6 @@ small-steps/
 
 ---
 
-## 🚀 Quick Start Guide
-
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v20.0.0 or higher; v22+ recommended for native `node:sqlite`)
-- [Git](https://git-scm.com/)
-
-### 1. Installation
-In the project directory, install dependencies:
-```bash
-npm install
-```
-
-### 2. Start the Application
-Run the full-stack server:
-```bash
-npm start
-```
-
-For development with automatic server restart:
-```bash
-npm run dev
-```
-
-Open your browser and navigate to:
-```
-http://localhost:3000
-```
-
----
-
 ## 🔑 Demo Access Credentials
 
 The database comes pre-seeded with sample accounts and directory listings across India (Bengaluru, Chennai, Mumbai, Delhi, Pune, Kolkata, Hyderabad, etc.):
@@ -146,32 +116,3 @@ The database comes pre-seeded with sample accounts and directory listings across
 - `POST /api/reviews/:therapistId` — Parent submits verified review (rating 1–5 and feedback)
 
 ---
-
-## 📦 Pushing to Your Git Repository
-
-To push this project to your GitHub, GitLab, or Git server:
-
-```bash
-# 1. Initialize git (if not already initialized)
-git init
-
-# 2. Stage all files
-git add .
-
-# 3. Create initial commit
-git commit -m "feat: complete Small Steps fullstack platform with Express backend, SQLite, and responsive frontend"
-
-# 4. Set default branch to main
-git branch -M main
-
-# 5. Link your remote repository
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-
-# 6. Push to remote
-git push -u origin main
-```
-
----
-
-## 📄 License
-This project is licensed under the [MIT License](LICENSE).
