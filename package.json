@@ -1,0 +1,26 @@
+{
+  "name": "small-steps",
+  "version": "1.0.0",
+  "description": "Small Steps - Inclusive Activity Support Directory and Care Marketplace Platform",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "seed": "node server/db/seed.js"
+  },
+  "keywords": [
+    "inclusive-activities",
+    "neurodiversity",
+    "pediatric-therapy",
+    "parent-workspace",
+    "therapist-directory"
+  ],
+  "author": "Small Steps Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

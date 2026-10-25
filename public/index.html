@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2d43a">
+  <meta name="description" content="Small Steps - Inclusive activity support directory, booking platform, and care workspace for families and therapists.">
+  <title>Small Steps — Inclusive Activity Support & Care Platform</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Modak&family=Nunito:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+  <!-- Modular Stylesheets -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+
+  <!-- Sign In & Registration Screen -->
+  <section class="signin-screen" id="signin-screen" aria-labelledby="signin-title">
+    <div class="signin-shell">
+      <section class="signin-story">
+        <div class="signin-brand">
+          <span class="brandmark">s</span>
+          <span>small steps</span>
+        </div>
+        <span class="signin-story-tag">A LITTLE SPACE TO GROW & PLAY</span>
+        <h1 class="display-title">Find their kind<br><em>of wonderful.</em></h1>
+        <p>Swimming, art, music and everyday adventures—find kind people who make room for your child to explore at their own pace.</p>
+        <div class="signin-paper-note">
+          <span>FOR EVERY LITTLE WIN</span>
+          <b>There’s a little<br>celebration ✦</b>
+        </div>
+        <span class="signin-spark signin-spark-one">✿</span>
+        <span class="signin-spark signin-spark-two">✦</span>
+      </section>
+
+      <section class="signin-panel">
+        <div class="signin-panel-kicker">YOUR FAMILY’S ACTIVITY SPACE</div>
+        <h2 id="signin-title" class="display-title">Welcome back, family</h2>
+        <p class="signin-subtitle" id="signin-subtitle">Sign in to find support, manage sessions, and chat with your care team.</p>
+
+        <!-- Role Selector -->
+        <div class="signin-role-switch" role="group" aria-label="Choose account type">
+          <button class="active" type="button" data-signin-role="parent" aria-pressed="true">Parent</button>
+          <button type="button" data-signin-role="therapist" aria-pressed="false">Therapist</button>
+        </div>
+
+        <!-- Auth Mode Selector (Sign In vs Create Account) -->
+        <div class="auth-mode-switch" role="group" aria-label="Choose sign-in or registration">
+          <button class="active" type="button" data-auth-mode="signin" aria-pressed="true">Sign in</button>
+          <button type="button" data-auth-mode="signup" aria-pressed="false">Create account</button>
+        </div>
+
+        <!-- Auth Form -->
+        <form id="signin-form">
+          <input type="hidden" id="signin-role" value="parent">
+
+          <div class="field" id="signup-name-field" hidden>
+            <label for="signup-name">Parent / caregiver name</label>
+            <input class="input" id="signup-name" type="text" placeholder="Your name" autocomplete="name" maxlength="80">
+          </div>
+
+          <div class="field" id="child-name-field">
+            <label for="signin-child-name">Your child’s name</label>
+            <input class="input" id="signin-child-name" type="text" placeholder="Enter your child’s name" autocomplete="off">
+          </div>
+
+          <!-- Therapist Specific Sign Up Fields -->
+          <div id="therapist-signup-fields" hidden>
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+              <div class="field">
+                <label for="signup-phone">Contact phone number</label>
+                <input class="input" id="signup-phone" type="tel" placeholder="+91 98450 00000" autocomplete="tel">
+              </div>
+              <div class="field">
+                <label for="signup-profession">Professional title</label>
+                <input class="input" id="signup-profession" placeholder="Swim coach, OT, etc.">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="signup-activities">Activities you offer (comma-separated)</label>
+              <input class="input" id="signup-activities" placeholder="Swimming, pottery, cycling…">
+            </div>
+
+            <div class="field">
+              <label for="signup-qualifications">Qualifications (one per line)</label>
+              <textarea class="textarea" id="signup-qualifications" placeholder="Inclusive coaching certificate&#10;Pediatric first aid"></textarea>
+            </div>
+
+            <label class="doctor-toggle">
+              <input type="checkbox" id="signup-is-doctor" onchange="document.getElementById('signup-doctor-fields').hidden = !this.checked">
+              <span><b>I am a registered medical doctor</b> <small>(Registration number required)</small></span>
+            </label>
+
+            <div class="doctor-registration-grid" id="signup-doctor-fields" hidden>
+              <div class="field">
+                <label for="signup-registration-number">Medical registration number</label>
+                <input class="input" id="signup-registration-number" placeholder="e.g. MCI-12345">
+              </div>
+              <div class="field">
+                <label for="signup-registration-council">Issuing medical council</label>
+                <input class="input" id="signup-registration-council" placeholder="e.g. State Medical Council">
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="signin-email">Email address</label>
+            <input class="input" id="signin-email" type="email" placeholder="you@example.test" autocomplete="username" required>
+          </div>
+
+          <div class="field">
+            <label for="signin-password">Password</label>
+            <input class="input" id="signin-password" type="password" placeholder="Enter your password" autocomplete="current-password" minlength="6" required>
+          </div>
+
+          <div class="field" id="signup-confirm-field" hidden>
+            <label for="signup-confirm-password">Confirm password</label>
+            <input class="input" id="signup-confirm-password" type="password" placeholder="Repeat your password" autocomplete="new-password" minlength="6">
+          </div>
+
+          <p class="signin-feedback" id="signin-feedback" aria-live="polite"></p>
+
+          <button class="btn btn-primary signin-submit" id="signin-submit" type="submit">
+            <span id="signin-submit-label">Sign in</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <!-- One-Click Demo Access -->
+        <div class="demo-accounts">
+          <div class="demo-divider"><span>OR TRY A PREVIEW ACCOUNT</span></div>
+          <button class="demo-account" type="button" onclick="fillDemo('parent')">
+            <span class="demo-account-icon">♡</span>
+            <span>
+              <b>Parent preview</b>
+              <small>family@example.test · steps123</small>
+            </span>
+            <span class="demo-arrow">↗</span>
+          </button>
+          <button class="demo-account" type="button" onclick="fillDemo('therapist')">
+            <span class="demo-account-icon">✿</span>
+            <span>
+              <b>Therapist preview</b>
+              <small id="therapist-demo-email">demo-maya@example.test · steps123</small>
+            </span>
+            <span class="demo-arrow">↗</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- Application Main Shell -->
+  <div class="app-shell" id="app-shell" hidden>
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-brand">
+          <span class="brandmark">s</span>
+          <span class="brand-copy">
+            <b>small steps</b>
+            <small id="family-space-title">Family space</small>
+          </span>
+        </div>
+
+        <nav class="top-nav" id="top-nav" aria-label="Main Navigation">
+          <button class="active" type="button" data-page="discover">
+            <span class="nav-ico">⌕</span>
+            <span>Find support</span>
+          </button>
+          <button type="button" data-page="community">
+            <span class="nav-ico">✿</span>
+            <span>Community</span>
+          </button>
+          <button type="button" data-page="sessions">
+            <span class="nav-ico">◷</span>
+            <span>Sessions</span>
+          </button>
+          <button type="button" data-page="calendar">
+            <span class="nav-ico">▦</span>
+            <span>Calendar</span>
+          </button>
+          <button type="button" data-page="messages">
+            <span class="nav-ico">◌</span>
+            <span>Messages</span>
+          </button>
+          <button type="button" data-page="profile" hidden>
+            <span class="nav-ico">♡</span>
+            <span>My profile</span>
+          </button>
+        </nav>
+
+        <div class="top-actions">
+          <span class="role-pill" id="role-hint">Parent space</span>
+          <button class="btn btn-sm" id="signout" type="button">Sign out</button>
+        </div>
+      </header>
+
+      <!-- Dynamic Page Container -->
+      <section class="content" id="page">
+        <!-- Rendered dynamically by app.js -->
+      </section>
+    </main>
+  </div>
+
+  <!-- Dynamic Root Elements -->
+  <div id="modal-root"></div>
+  <div id="toast-root"></div>
+
+  <!-- JavaScript Client Files -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
