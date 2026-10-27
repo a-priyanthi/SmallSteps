@@ -105,6 +105,8 @@
   align-self: center;
   padding: clamp(24px, 4vw, 46px);
   color: #463526;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .signin-panel-kicker {
@@ -165,77 +167,119 @@
   height: 44px;
 }
 
-/* Demo account quick login buttons */
-.demo-divider {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 18px 0 10px;
-  color: #8a7656;
-  font: 800 8px 'Nunito', sans-serif;
-  letter-spacing: 0.12em;
-}
-
-.demo-divider::before, .demo-divider::after {
-  content: '';
-  height: 1px;
-  flex: 1;
-  background: #ddcf9c;
-}
-
-.demo-account {
-  width: 100%;
-  display: flex;
-  align-items: center;
+/* Auth Mode & Role Switchers */
+.signup-role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin: 7px 0;
-  padding: 9px 12px;
-  border: 1px solid #e2d39b;
-  border-radius: 6px 12px 7px 5px;
-  background: #fff9dc;
+  margin-bottom: 16px;
+}
+
+.signup-role-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   text-align: left;
-  box-shadow: 1px 2px 0 rgba(84, 68, 39, 0.07);
-  transition: transform 0.18s, box-shadow 0.18s;
+  padding: 12px 14px;
+  background: #fdfaf0;
+  border: 2px solid #e2d39b;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.signup-role-btn:hover {
+  background: #fff8dc;
+  border-color: #83b967;
+  transform: translateY(-1px);
+}
+
+.signup-role-btn.active {
+  background: #edf7e4;
+  border-color: #558742;
+  box-shadow: 0 3px 8px rgba(85, 135, 66, 0.15);
+}
+
+.signup-role-badge {
+  font: 800 9px 'Nunito', sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #ded19b;
+  color: #574631;
+  margin-bottom: 6px;
+}
+
+.signup-role-btn.active .signup-role-badge {
+  background: #73a85b;
+  color: #fff;
+}
+
+.signup-role-btn b {
+  font: 800 12px 'Nunito', sans-serif;
+  color: #3b3022;
+  margin-bottom: 2px;
+}
+
+.signup-role-btn small {
+  font: 500 10px/1.3 'Nunito', sans-serif;
+  color: #79664b;
+}
+
+.auth-switch-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed #ddcd8b;
+  font: 600 12px 'Nunito', sans-serif;
+  color: #6d5b45;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #2b6138;
+  font: 800 12px 'Nunito', sans-serif;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.btn-link:hover {
+  color: #173d20;
+}
+
+.doctor-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 10px;
+  cursor: pointer;
+  font: 600 12px 'Nunito', sans-serif;
+  color: #473a2b;
+}
+
+.doctor-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4a7a3b;
   cursor: pointer;
 }
 
-.demo-account:hover {
-  transform: translateY(-2px);
-  box-shadow: 2px 4px 0 rgba(84, 68, 39, 0.1);
-}
-
-.demo-account-icon {
-  width: 30px;
-  height: 30px;
+.doctor-registration-grid {
   display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #f5c8b2;
-  color: #85452e;
-  font-size: 14px;
-}
-
-.demo-account + .demo-account .demo-account-icon {
-  background: #cfe4a8;
-  color: #315d39;
-}
-
-.demo-account b {
-  font: 800 11px 'Nunito', sans-serif;
-  color: #4a3c2a;
-  display: block;
-}
-
-.demo-account small {
-  font: 600 9px 'Nunito', sans-serif;
-  color: #827050;
-  display: block;
-}
-
-.demo-arrow {
-  margin-left: auto;
-  color: var(--green);
-  font-size: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  background: #fbf5df;
+  border: 1px dashed #cfbe85;
+  border-radius: 8px;
+  margin-bottom: 12px;
 }
 
 /* 2. Discovery Page Hero & Search */

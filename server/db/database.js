@@ -37,6 +37,9 @@ function initDatabase() {
       role TEXT NOT NULL CHECK(role IN ('parent', 'therapist')),
       name TEXT NOT NULL,
       child_name TEXT,
+      child_age TEXT,
+      phone TEXT,
+      location TEXT,
       created_at TEXT NOT NULL
     );
 
@@ -136,7 +139,21 @@ function initDatabase() {
       text TEXT NOT NULL,
       created_at TEXT NOT NULL
     );
+
+    -- Performance indexes
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+    CREATE INDEX IF NOT EXISTS idx_therapist_user_id ON therapist_profiles(user_id);
+    CREATE INDEX IF NOT EXISTS idx_therapist_listed ON therapist_profiles(listed);
+    CREATE INDEX IF NOT EXISTS idx_bookings_parent ON bookings(parent_id);
+    CREATE INDEX IF NOT EXISTS idx_bookings_therapist ON bookings(therapist_id);
+    CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(therapist_id, parent_id);
+    CREATE INDEX IF NOT EXISTS idx_slots_therapist ON availability_slots(therapist_id);
   `);
+
+  // Safe schema migrations for existing SQLite databases
+  try { db.exec("ALTER TABLE users ADD COLUMN child_age TEXT;"); } catch (e) {}
+  try { db.exec("ALTER TABLE users ADD COLUMN phone TEXT;"); } catch (e) {}
+  try { db.exec("ALTER TABLE users ADD COLUMN location TEXT;"); } catch (e) {}
 
   // Check if seeding is needed
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
@@ -263,16 +280,49 @@ const repository = {
     return row || null;
   },
 
-  createUser({ id, email, password_hash, role, name, child_name }) {
+  createUser({ id, email, password_hash, role, name, child_name, child_age, phone, location }) {
     db.prepare(`
-      INSERT INTO users (id, email, password_hash, role, name, child_name, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run(id, email.toLowerCase().trim(), password_hash, role, name, child_name || null, new Date().toISOString());
+      INSERT INTO users (id, email, password_hash, role, name, child_name, child_age, phone, location, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      email.toLowerCase().trim(),
+      password_hash,
+      role,
+      name.trim(),
+      child_name ? child_name.trim() : null,
+      child_age ? String(child_age).trim() : null,
+      phone ? String(phone).trim() : null,
+      location ? String(location).trim() : null,
+      new Date().toISOString()
+    );
     return this.getUserById(id);
   },
 
   updateParentChildName(userId, childName) {
     db.prepare('UPDATE users SET child_name = ? WHERE id = ?').run(childName, userId);
+    return this.getUserById(userId);
+  },
+
+  updateUserProfile(userId, data) {
+    const current = this.getUserById(userId);
+    if (!current) return null;
+    db.prepare(`
+      UPDATE users SET
+        name = ?,
+        child_name = ?,
+        child_age = ?,
+        phone = ?,
+        location = ?
+      WHERE id = ?
+    `).run(
+      data.name !== undefined ? data.name.trim() : current.name,
+      data.child_name !== undefined ? (data.child_name ? data.child_name.trim() : null) : current.child_name,
+      data.child_age !== undefined ? (data.child_age ? String(data.child_age).trim() : null) : current.child_age,
+      data.phone !== undefined ? (data.phone ? String(data.phone).trim() : null) : current.phone,
+      data.location !== undefined ? (data.location ? String(data.location).trim() : null) : current.location,
+      userId
+    );
     return this.getUserById(userId);
   },
 

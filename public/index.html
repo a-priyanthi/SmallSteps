@@ -40,79 +40,21 @@
       </section>
 
       <section class="signin-panel">
-        <div class="signin-panel-kicker">YOUR FAMILY’S ACTIVITY SPACE</div>
-        <h2 id="signin-title" class="display-title">Welcome back, family</h2>
-        <p class="signin-subtitle" id="signin-subtitle">Sign in to find support, manage sessions, and chat with your care team.</p>
+        <div class="signin-panel-kicker" id="signin-kicker">WELCOME TO SMALL STEPS</div>
+        <h2 id="signin-title" class="display-title">Sign in</h2>
+        <p class="signin-subtitle" id="signin-subtitle">Enter your email and password to access your family space or provider workspace.</p>
 
-        <!-- Role Selector -->
-        <div class="signin-role-switch" role="group" aria-label="Choose account type">
-          <button class="active" type="button" data-signin-role="parent" aria-pressed="true">Parent</button>
-          <button type="button" data-signin-role="therapist" aria-pressed="false">Therapist</button>
-        </div>
-
-        <!-- Auth Mode Selector (Sign In vs Create Account) -->
+        <!-- Auth Mode Switch: Sign In vs Create Account -->
         <div class="auth-mode-switch" role="group" aria-label="Choose sign-in or registration">
           <button class="active" type="button" data-auth-mode="signin" aria-pressed="true">Sign in</button>
           <button type="button" data-auth-mode="signup" aria-pressed="false">Create account</button>
         </div>
 
-        <!-- Auth Form -->
+        <!-- 1. SIGN IN FORM -->
         <form id="signin-form">
-          <input type="hidden" id="signin-role" value="parent">
-
-          <div class="field" id="signup-name-field" hidden>
-            <label for="signup-name">Parent / caregiver name</label>
-            <input class="input" id="signup-name" type="text" placeholder="Your name" autocomplete="name" maxlength="80">
-          </div>
-
-          <div class="field" id="child-name-field">
-            <label for="signin-child-name">Your child’s name</label>
-            <input class="input" id="signin-child-name" type="text" placeholder="Enter your child’s name" autocomplete="off">
-          </div>
-
-          <!-- Therapist Specific Sign Up Fields -->
-          <div id="therapist-signup-fields" hidden>
-            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
-              <div class="field">
-                <label for="signup-phone">Contact phone number</label>
-                <input class="input" id="signup-phone" type="tel" placeholder="+91 98450 00000" autocomplete="tel">
-              </div>
-              <div class="field">
-                <label for="signup-profession">Professional title</label>
-                <input class="input" id="signup-profession" placeholder="Swim coach, OT, etc.">
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="signup-activities">Activities you offer (comma-separated)</label>
-              <input class="input" id="signup-activities" placeholder="Swimming, pottery, cycling…">
-            </div>
-
-            <div class="field">
-              <label for="signup-qualifications">Qualifications (one per line)</label>
-              <textarea class="textarea" id="signup-qualifications" placeholder="Inclusive coaching certificate&#10;Pediatric first aid"></textarea>
-            </div>
-
-            <label class="doctor-toggle">
-              <input type="checkbox" id="signup-is-doctor" onchange="document.getElementById('signup-doctor-fields').hidden = !this.checked">
-              <span><b>I am a registered medical doctor</b> <small>(Registration number required)</small></span>
-            </label>
-
-            <div class="doctor-registration-grid" id="signup-doctor-fields" hidden>
-              <div class="field">
-                <label for="signup-registration-number">Medical registration number</label>
-                <input class="input" id="signup-registration-number" placeholder="e.g. MCI-12345">
-              </div>
-              <div class="field">
-                <label for="signup-registration-council">Issuing medical council</label>
-                <input class="input" id="signup-registration-council" placeholder="e.g. State Medical Council">
-              </div>
-            </div>
-          </div>
-
           <div class="field">
             <label for="signin-email">Email address</label>
-            <input class="input" id="signin-email" type="email" placeholder="you@example.test" autocomplete="username" required>
+            <input class="input" id="signin-email" type="email" placeholder="you@example.com" autocomplete="username" required>
           </div>
 
           <div class="field">
@@ -120,39 +62,161 @@
             <input class="input" id="signin-password" type="password" placeholder="Enter your password" autocomplete="current-password" minlength="6" required>
           </div>
 
-          <div class="field" id="signup-confirm-field" hidden>
-            <label for="signup-confirm-password">Confirm password</label>
-            <input class="input" id="signup-confirm-password" type="password" placeholder="Repeat your password" autocomplete="new-password" minlength="6">
-          </div>
-
           <p class="signin-feedback" id="signin-feedback" aria-live="polite"></p>
 
-          <button class="btn btn-primary signin-submit" id="signin-submit" type="submit">
-            <span id="signin-submit-label">Sign in</span>
+          <button class="btn btn-primary signin-submit" id="signin-submit-btn" type="submit">
+            <span>Sign in</span>
             <span aria-hidden="true">→</span>
           </button>
+
+          <div class="auth-switch-footer">
+            <span>New to Small Steps?</span>
+            <button type="button" class="btn-link" id="link-to-signup">Create a new account</button>
+          </div>
         </form>
 
-        <!-- One-Click Demo Access -->
-        <div class="demo-accounts">
-          <div class="demo-divider"><span>OR TRY A PREVIEW ACCOUNT</span></div>
-          <button class="demo-account" type="button" onclick="fillDemo('parent')">
-            <span class="demo-account-icon">♡</span>
-            <span>
-              <b>Parent preview</b>
-              <small>family@example.test · steps123</small>
-            </span>
-            <span class="demo-arrow">↗</span>
+        <!-- 2. CREATE ACCOUNT FORM -->
+        <form id="signup-form" hidden>
+          <!-- Role selector for registration -->
+          <div class="signup-role-grid" role="group" aria-label="Select account role">
+            <button class="signup-role-btn active" type="button" data-signup-role="parent" aria-pressed="true">
+              <span class="signup-role-badge">Family</span>
+              <b>I’m a Parent / Family</b>
+              <small>Find inclusive activities for my child</small>
+            </button>
+            <button class="signup-role-btn" type="button" data-signup-role="therapist" aria-pressed="false">
+              <span class="signup-role-badge">Specialist</span>
+              <b>I’m a Specialist / Coach</b>
+              <small>Offer pediatric therapy & activities</small>
+            </button>
+          </div>
+
+          <!-- Parent registration fields -->
+          <div id="parent-signup-fields">
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+              <div class="field">
+                <label for="parent-name">Parent / Caregiver name *</label>
+                <input class="input" id="parent-name" type="text" placeholder="e.g. Priya Sharma" autocomplete="name">
+              </div>
+              <div class="field">
+                <label for="parent-child-name">Child’s name *</label>
+                <input class="input" id="parent-child-name" type="text" placeholder="e.g. Aarav">
+              </div>
+            </div>
+
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+              <div class="field">
+                <label for="parent-child-age">Child’s age / grade</label>
+                <input class="input" id="parent-child-age" type="text" placeholder="e.g. 6 years old">
+              </div>
+              <div class="field">
+                <label for="parent-area">City / Neighbourhood</label>
+                <input class="input" id="parent-area" type="text" placeholder="e.g. Indiranagar, Bengaluru">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="parent-email">Email address *</label>
+              <input class="input" id="parent-email" type="email" placeholder="priya@example.com" autocomplete="username">
+            </div>
+
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+              <div class="field">
+                <label for="parent-password">Password (min 6 chars) *</label>
+                <input class="input" id="parent-password" type="password" placeholder="Create password" autocomplete="new-password" minlength="6">
+              </div>
+              <div class="field">
+                <label for="parent-confirm-password">Confirm password *</label>
+                <input class="input" id="parent-confirm-password" type="password" placeholder="Repeat password" autocomplete="new-password" minlength="6">
+              </div>
+            </div>
+          </div>
+
+          <!-- Therapist registration fields -->
+          <div id="therapist-signup-fields" hidden>
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+              <div class="field">
+                <label for="therapist-name">Specialist full name *</label>
+                <input class="input" id="therapist-name" type="text" placeholder="e.g. Dr. Maya Chen" autocomplete="name">
+              </div>
+              <div class="field">
+                <label for="therapist-profession">Professional title *</label>
+                <input class="input" id="therapist-profession" placeholder="e.g. Pediatric OT, Swim Coach">
+              </div>
+            </div>
+
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+              <div class="field">
+                <label for="therapist-phone">Contact phone number *</label>
+                <input class="input" id="therapist-phone" type="tel" placeholder="+91 98450 00000" autocomplete="tel">
+              </div>
+              <div class="field">
+                <label for="therapist-area">City / Area *</label>
+                <input class="input" id="therapist-area" placeholder="e.g. Koramangala, Bengaluru">
+              </div>
+            </div>
+
+            <div class="grid" style="grid-template-columns:1.2fr 0.8fr;gap:10px">
+              <div class="field">
+                <label for="therapist-activities">Activities offered (comma-separated) *</label>
+                <input class="input" id="therapist-activities" placeholder="Swimming, sensory play, water confidence">
+              </div>
+              <div class="field">
+                <label for="therapist-fee">Session fee (₹) *</label>
+                <input class="input" id="therapist-fee" type="number" min="0" step="50" placeholder="700">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="therapist-qualifications">Qualifications (one per line)</label>
+              <textarea class="textarea" id="therapist-qualifications" rows="2" placeholder="Certified Adaptive Aquatics Coach&#10;Pediatric Sensory Integration"></textarea>
+            </div>
+
+            <label class="doctor-toggle">
+              <input type="checkbox" id="therapist-is-doctor">
+              <span><b>I am a registered medical doctor (MD/MBBS)</b> <small>(Council registration required)</small></span>
+            </label>
+
+            <div class="doctor-registration-grid" id="therapist-doctor-fields" hidden>
+              <div class="field">
+                <label for="therapist-registration-number">Medical registration number</label>
+                <input class="input" id="therapist-registration-number" placeholder="e.g. KMC-12345">
+              </div>
+              <div class="field">
+                <label for="therapist-registration-council">Issuing medical council</label>
+                <input class="input" id="therapist-registration-council" placeholder="e.g. Karnataka Medical Council">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="therapist-email">Email address *</label>
+              <input class="input" id="therapist-email" type="email" placeholder="maya@clinic.com" autocomplete="username">
+            </div>
+
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+              <div class="field">
+                <label for="therapist-password">Password (min 6 chars) *</label>
+                <input class="input" id="therapist-password" type="password" placeholder="Create password" autocomplete="new-password" minlength="6">
+              </div>
+              <div class="field">
+                <label for="therapist-confirm-password">Confirm password *</label>
+                <input class="input" id="therapist-confirm-password" type="password" placeholder="Repeat password" autocomplete="new-password" minlength="6">
+              </div>
+            </div>
+          </div>
+
+          <p class="signin-feedback" id="signup-feedback" aria-live="polite"></p>
+
+          <button class="btn btn-primary signin-submit" id="signup-submit-btn" type="submit">
+            <span>Create account</span>
+            <span aria-hidden="true">→</span>
           </button>
-          <button class="demo-account" type="button" onclick="fillDemo('therapist')">
-            <span class="demo-account-icon">✿</span>
-            <span>
-              <b>Therapist preview</b>
-              <small id="therapist-demo-email">demo-maya@example.test · steps123</small>
-            </span>
-            <span class="demo-arrow">↗</span>
-          </button>
-        </div>
+
+          <div class="auth-switch-footer">
+            <span>Already have an account?</span>
+            <button type="button" class="btn-link" id="link-to-signin">Sign in instead</button>
+          </div>
+        </form>
       </section>
     </div>
   </section>
@@ -190,9 +254,13 @@
             <span class="nav-ico">◌</span>
             <span>Messages</span>
           </button>
-          <button type="button" data-page="profile" hidden>
+          <button type="button" data-page="family-profile" id="nav-family-profile">
             <span class="nav-ico">♡</span>
-            <span>My profile</span>
+            <span>Family profile</span>
+          </button>
+          <button type="button" data-page="profile" id="nav-therapist-profile" hidden>
+            <span class="nav-ico">✎</span>
+            <span>Profile & slots</span>
           </button>
         </nav>
 

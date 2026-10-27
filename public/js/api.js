@@ -98,6 +98,7 @@ window.SmallStepsAPI = {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
     me: () => api.get('/auth/me'),
+    updateProfile: (data) => api.put('/auth/profile', data),
     logout: () => {
       api.setToken(null);
       return api.post('/auth/logout');

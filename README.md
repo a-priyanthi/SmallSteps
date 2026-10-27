@@ -63,16 +63,12 @@ small-steps/
 
 ---
 
-## 🔑 Demo Access Credentials
+## 🔑 User Onboarding & Access
 
-The database comes pre-seeded with sample accounts and directory listings across India (Bengaluru, Chennai, Mumbai, Delhi, Pune, Kolkata, Hyderabad, etc.):
-
-| Account Role | Email | Password | Details |
-|---|---|---|---|
-| **Parent Workspace** | `family@example.test` | `steps123` | Child: Mira (Age 6). Includes sample bookings & chat threads. |
-| **Therapist Workspace** | `demo-maya@example.test` | `steps123` | Maya Chen, Autism-informed Swim Coach. Includes requests & slots. |
-
-> **Quick Login**: On the sign-in screen, click **Parent preview** or **Therapist preview** to fill demo credentials with one tap.
+Small Steps is built for real production usage by families and specialists:
+- **New Families / Parents**: Click **Create account**, choose **Family / Parent**, and enter caregiver name, child's name, child's age/profile, email, and password. The system immediately configures a personalized family workspace.
+- **New Specialists / Coaches**: Click **Create account**, choose **Specialist / Coach**, and enter professional title, phone, activities offered, area, session fee, qualifications, and optional doctor verification. Your listing becomes instantly visible in the public directory.
+- **Existing Users**: Log in with your email and password. The backend securely checks bcrypt password hashes, issues a signed JWT, and routes you directly to your role-specific workspace.
 
 ---
 

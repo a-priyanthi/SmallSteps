@@ -65,7 +65,10 @@ router.post('/register', async (req, res) => {
         password_hash: passwordHash,
         role: 'parent',
         name: name.trim(),
-        child_name: childName.trim()
+        child_name: childName.trim(),
+        child_age: req.body.childAge ? String(req.body.childAge).trim() : null,
+        phone: req.body.phone ? String(req.body.phone).trim() : null,
+        location: area ? area.trim() : null
       });
 
       const token = generateToken(user);
@@ -77,17 +80,20 @@ router.post('/register', async (req, res) => {
           email: user.email,
           role: user.role,
           name: user.name,
-          childName: user.child_name
+          childName: user.child_name,
+          childAge: user.child_age,
+          phone: user.phone,
+          location: user.location
         }
       });
     } else {
       // Therapist registration
       if (!profession || !phone) {
-        return res.status(400).json({ error: 'Please provide professional title and contact number.' });
+        return res.status(400).json({ error: 'Please provide your professional title and contact phone number.' });
       }
 
       if (isDoctor && (!registrationNumber || !registrationCouncil)) {
-        return res.status(400).json({ error: 'Doctor registration number and council are required.' });
+        return res.status(400).json({ error: 'Doctor registration number and issuing medical council are required.' });
       }
 
       const specs = Array.isArray(specialties)
@@ -102,13 +108,18 @@ router.post('/register', async (req, res) => {
         ? qualifications
         : (qualifications || '').split('\n').map(q => q.trim()).filter(Boolean);
 
+      const fee = req.body.sessionFee ? Number(req.body.sessionFee) : 700;
+
       const user = repository.createUser({
         id: userId,
         email,
         password_hash: passwordHash,
         role: 'therapist',
         name: name.trim(),
-        child_name: null
+        child_name: null,
+        child_age: null,
+        phone: phone.trim(),
+        location: area ? area.trim() : null
       });
 
       const therapist = repository.createTherapist({
@@ -117,14 +128,18 @@ router.post('/register', async (req, res) => {
         name: user.name,
         profession: profession.trim(),
         specialties: specs,
-        bio: `I support children to explore ${specs.join(', ')} at their own pace. Families can message me to discuss accommodations and session details.`,
+        bio: req.body.bio && req.body.bio.trim()
+          ? req.body.bio.trim()
+          : `I support neurodivergent children to explore ${specs.join(', ')} at their own pace. Families can message me to discuss accommodations and session details.`,
         qualifications: quals.length ? quals : ['Inclusive activity training'],
         experience_years: Number(experienceYears) || 0,
         area: area ? area.trim() : '',
         formats: ['In person'],
         languages: ['English'],
-        approach: 'A predictable plan, meaningful choices, flexible pacing, and breaks when needed.',
-        session_fee: 700,
+        approach: req.body.approach && req.body.approach.trim()
+          ? req.body.approach.trim()
+          : 'A predictable plan, meaningful choices, flexible pacing, and sensory breaks whenever needed.',
+        session_fee: fee,
         offer: null,
         phone: phone.trim(),
         email: user.email,
@@ -146,8 +161,11 @@ router.post('/register', async (req, res) => {
           email: user.email,
           role: user.role,
           name: user.name,
+          phone: user.phone,
+          location: user.location,
           therapistId: therapist.id
-        }
+        },
+        therapistProfile: therapist
       });
     }
   } catch (err) {
@@ -159,32 +177,27 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password, childName } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Please enter both email and password.' });
+      return res.status(400).json({ error: 'Please enter both your email address and password.' });
     }
 
     const user = repository.getUserByEmail(email);
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ error: 'Invalid email or password. Please check your credentials.' });
     }
 
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
-    }
-
-    // Optional update of child's name on login if provided
-    if (user.role === 'parent' && childName && childName.trim()) {
-      repository.updateParentChildName(user.id, childName.trim());
-      user.child_name = childName.trim();
+      return res.status(401).json({ error: 'Invalid email or password. Please check your credentials.' });
     }
 
     let therapistId = null;
+    let therapistProfile = null;
     if (user.role === 'therapist') {
-      const therapist = repository.getTherapistByUserId(user.id);
-      therapistId = therapist ? therapist.id : user.id;
+      therapistProfile = repository.getTherapistByUserId(user.id);
+      therapistId = therapistProfile ? therapistProfile.id : user.id;
     }
 
     const token = generateToken(user);
@@ -198,8 +211,12 @@ router.post('/login', async (req, res) => {
         role: user.role,
         name: user.name,
         childName: user.child_name,
+        childAge: user.child_age,
+        phone: user.phone,
+        location: user.location,
         therapistId
-      }
+      },
+      therapistProfile
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -226,10 +243,48 @@ router.get('/me', authenticate, (req, res) => {
       role: user.role,
       name: user.name,
       childName: user.child_name,
+      childAge: user.child_age,
+      phone: user.phone,
+      location: user.location,
       therapistId: therapistProfile ? therapistProfile.id : null
     },
     therapistProfile
   });
+});
+
+// PUT /api/auth/profile - Parent or User profile update
+router.put('/profile', authenticate, (req, res) => {
+  try {
+    const { name, childName, childAge, phone, location } = req.body;
+    const updated = repository.updateUserProfile(req.user.id, {
+      name,
+      child_name: childName,
+      child_age: childAge,
+      phone,
+      location
+    });
+
+    if (!updated) {
+      return res.status(404).json({ error: 'User profile not found.' });
+    }
+
+    res.json({
+      message: 'Profile updated successfully.',
+      user: {
+        id: updated.id,
+        email: updated.email,
+        role: updated.role,
+        name: updated.name,
+        childName: updated.child_name,
+        childAge: updated.child_age,
+        phone: updated.phone,
+        location: updated.location
+      }
+    });
+  } catch (err) {
+    console.error('Profile update error:', err);
+    res.status(500).json({ error: 'Failed to update profile.' });
+  }
 });
 
 // POST /api/auth/logout

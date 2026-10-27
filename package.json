@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "seed": "node server/db/seed.js"
+    "seed": "node server/db/seed.js",
+    "test": "node test_system.js"
   },
   "keywords": [
     "inclusive-activities",
@@ -24,6 +25,6 @@
     "jsonwebtoken": "^9.0.2"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=20.0.0"
   }
 }

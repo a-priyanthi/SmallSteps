@@ -57,11 +57,10 @@ app.use((err, req, res, next) => {
 // Start Server
 if (require.main === module) {
   app.listen(config.PORT, () => {
-    console.log(`✨ Small Steps Server running at http://localhost:${config.PORT}`);
+    console.log(`✨ Small Steps Care & Activity Marketplace running at http://localhost:${config.PORT}`);
     console.log(`   - REST API: http://localhost:${config.PORT}/api`);
     console.log(`   - Frontend: http://localhost:${config.PORT}`);
-    console.log(`   - Demo Parent: family@example.test / steps123`);
-    console.log(`   - Demo Therapist: demo-maya@example.test / steps123`);
+    console.log(`   - Database: SQLite (WAL mode, persistent storage)`);
   });
 }
 

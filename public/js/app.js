@@ -7,7 +7,7 @@ const State = {
   user: null,
   page: 'discover',
   authMode: 'signin',
-  authRole: 'parent',
+  signupRole: 'parent',
   filters: {
     q: '',
     area: '',
@@ -142,6 +142,8 @@ function render() {
     renderCalendar(container);
   } else if (State.page === 'messages') {
     renderMessages(container);
+  } else if (State.page === 'family-profile' && State.user.role === 'parent') {
+    renderFamilyProfile(container);
   } else if (State.page === 'profile' && State.user.role === 'therapist') {
     renderProfile(container);
   } else if (State.page === 'reviews' && State.user.role === 'parent') {
@@ -155,12 +157,14 @@ function render() {
 // Update Top Navigation Bar
 function updateNavigation() {
   const nav = document.getElementById('top-nav');
+  if (!nav || !State.user) return;
   const isParent = State.user.role === 'parent';
 
   // Toggle role-specific navigation items
   nav.querySelector('[data-page="discover"]')?.toggleAttribute('hidden', !isParent);
   nav.querySelector('[data-page="community"]')?.toggleAttribute('hidden', !isParent);
-  nav.querySelector('[data-page="profile"]')?.toggleAttribute('hidden', isParent);
+  nav.querySelector('#nav-family-profile')?.toggleAttribute('hidden', !isParent);
+  nav.querySelector('#nav-therapist-profile')?.toggleAttribute('hidden', isParent);
 
   const familySpaceTitle = document.getElementById('family-space-title');
   if (familySpaceTitle) {
@@ -171,7 +175,7 @@ function updateNavigation() {
 
   const roleHint = document.getElementById('role-hint');
   if (roleHint) {
-    roleHint.textContent = isParent ? 'Family workspace' : 'Therapist workspace';
+    roleHint.textContent = isParent ? 'Family workspace' : 'Specialist workspace';
   }
 
   nav.querySelectorAll('[data-page]').forEach(btn => {
@@ -190,48 +194,50 @@ function setPage(nextPage) {
 // ----------------------------------------------------
 function renderAuthForm() {
   const isSignup = State.authMode === 'signup';
-  const isParent = State.authRole === 'parent';
-
-  const nameField = document.getElementById('signup-name-field');
-  const childField = document.getElementById('child-name-field');
-  const therapistFields = document.getElementById('therapist-signup-fields');
-  const confirmField = document.getElementById('signup-confirm-field');
-  const demoAccounts = document.querySelector('.demo-accounts');
-
-  if (nameField) nameField.hidden = !isSignup;
-  if (childField) childField.hidden = !isParent;
-  if (therapistFields) therapistFields.hidden = !(isSignup && !isParent);
-  if (confirmField) confirmField.hidden = !isSignup;
-  if (demoAccounts) demoAccounts.hidden = isSignup;
-
+  const signinForm = document.getElementById('signin-form');
+  const signupForm = document.getElementById('signup-form');
+  const kicker = document.getElementById('signin-kicker');
   const title = document.getElementById('signin-title');
-  if (title) {
-    title.textContent = isSignup
-      ? (isParent ? 'Create a family account' : 'Create a provider account')
-      : (isParent ? 'Welcome back, family' : 'Welcome back, therapist');
-  }
-
   const subtitle = document.getElementById('signin-subtitle');
-  if (subtitle) {
-    subtitle.textContent = isSignup
-      ? (isParent ? 'Set up a private family space to find activity support.' : 'Create your provider profile so families can discover your activities.')
-      : 'Sign in to find support, manage sessions, and chat with your care team.';
-  }
 
-  const submitLabel = document.getElementById('signin-submit-label');
-  if (submitLabel) {
-    submitLabel.textContent = isSignup ? 'Create account' : 'Sign in';
+  if (isSignup) {
+    if (signinForm) signinForm.hidden = true;
+    if (signupForm) signupForm.hidden = false;
+    if (kicker) kicker.textContent = 'JOIN SMALL STEPS';
+    if (title) title.textContent = 'Create your account';
+    if (subtitle) subtitle.textContent = 'Join Small Steps to discover inclusive activities or offer specialist care.';
+
+    // Toggle role forms
+    const isParentRole = State.signupRole === 'parent';
+    const parentFields = document.getElementById('parent-signup-fields');
+    const therapistFields = document.getElementById('therapist-signup-fields');
+
+    if (parentFields) parentFields.hidden = !isParentRole;
+    if (therapistFields) therapistFields.hidden = isParentRole;
+
+    document.querySelectorAll('.signup-role-btn').forEach(btn => {
+      const active = btn.dataset.signupRole === State.signupRole;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    });
+  } else {
+    if (signinForm) signinForm.hidden = false;
+    if (signupForm) signupForm.hidden = true;
+    if (kicker) kicker.textContent = 'WELCOME TO SMALL STEPS';
+    if (title) title.textContent = 'Sign in';
+    if (subtitle) subtitle.textContent = 'Enter your email and password to open your family space or provider workspace.';
   }
 
   document.querySelectorAll('[data-auth-mode]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.authMode === State.authMode);
+    const active = btn.dataset.authMode === State.authMode;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', String(active));
   });
 
-  document.querySelectorAll('[data-signin-role]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.signinRole === State.authRole);
-  });
-
-  document.getElementById('signin-feedback').textContent = '';
+  const signinFeedback = document.getElementById('signin-feedback');
+  if (signinFeedback) signinFeedback.textContent = '';
+  const signupFeedback = document.getElementById('signup-feedback');
+  if (signupFeedback) signupFeedback.textContent = '';
 }
 
 function setAuthMode(mode) {
@@ -239,85 +245,144 @@ function setAuthMode(mode) {
   renderAuthForm();
 }
 
-function setSignInRole(role) {
-  State.authRole = role;
-  document.getElementById('signin-role').value = role;
+function setSignupRole(role) {
+  State.signupRole = role;
   renderAuthForm();
 }
 
-function fillDemo(kind) {
-  setAuthMode('signin');
-  setSignInRole(kind);
-  const emailInput = document.getElementById('signin-email');
-  const passInput = document.getElementById('signin-password');
-  const childInput = document.getElementById('signin-child-name');
-
-  if (kind === 'parent') {
-    emailInput.value = 'family@example.test';
-    passInput.value = 'steps123';
-    childInput.value = 'Mira';
-  } else {
-    emailInput.value = 'demo-maya@example.test';
-    passInput.value = 'steps123';
-  }
-  emailInput.focus();
-}
-
-async function handleAuthSubmit(event) {
+async function handleSignIn(event) {
   event.preventDefault();
   const feedback = document.getElementById('signin-feedback');
-  feedback.textContent = '';
+  if (feedback) feedback.textContent = '';
 
   const email = document.getElementById('signin-email').value.trim();
   const password = document.getElementById('signin-password').value;
-  const isSignup = State.authMode === 'signup';
-  const role = State.authRole;
+
+  if (!email || !password) {
+    if (feedback) feedback.textContent = 'Please enter both your email address and password.';
+    return;
+  }
+
+  const submitBtn = document.getElementById('signin-submit-btn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>Signing in...</span>';
+  }
 
   try {
-    if (isSignup) {
-      const name = document.getElementById('signup-name').value.trim();
-      const confirmPass = document.getElementById('signup-confirm-password').value;
-
-      if (password !== confirmPass) {
-        feedback.textContent = 'Passwords do not match.';
-        return;
-      }
-
-      const payload = {
-        role,
-        name,
-        email,
-        password,
-        childName: document.getElementById('signin-child-name')?.value.trim()
-      };
-
-      if (role === 'therapist') {
-        payload.phone = document.getElementById('signup-phone')?.value.trim();
-        payload.profession = document.getElementById('signup-profession')?.value.trim();
-        payload.specialties = document.getElementById('signup-activities')?.value.trim();
-        payload.qualifications = document.getElementById('signup-qualifications')?.value.trim();
-        payload.isDoctor = document.getElementById('signup-is-doctor')?.checked;
-        payload.registrationNumber = document.getElementById('signup-registration-number')?.value.trim();
-        payload.registrationCouncil = document.getElementById('signup-registration-council')?.value.trim();
-      }
-
-      const res = await SmallStepsAPI.auth.register(payload);
-      SmallStepsAPI.auth.setToken(res.token);
-      State.user = res.user;
-      State.page = role === 'parent' ? 'discover' : 'sessions';
-      toast('Account created successfully!');
-      render();
-    } else {
-      const childName = document.getElementById('signin-child-name')?.value.trim();
-      const res = await SmallStepsAPI.auth.login({ email, password, childName });
-      SmallStepsAPI.auth.setToken(res.token);
-      State.user = res.user;
-      State.page = State.user.role === 'parent' ? 'discover' : 'sessions';
-      toast(`Signed in as ${State.user.name}`);
-      render();
-    }
+    const res = await SmallStepsAPI.auth.login({ email, password });
+    SmallStepsAPI.auth.setToken(res.token);
+    State.user = res.user;
+    State.page = State.user.role === 'parent' ? 'discover' : 'sessions';
+    toast(`Welcome back, ${State.user.name}!`);
+    render();
   } catch (err) {
-    feedback.textContent = err.message || 'Authentication failed. Please check your details.';
+    if (feedback) feedback.textContent = err.message || 'Invalid email or password.';
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>Sign in</span> <span aria-hidden="true">→</span>';
+    }
+  }
+}
+
+async function handleSignUp(event) {
+  event.preventDefault();
+  const feedback = document.getElementById('signup-feedback');
+  if (feedback) feedback.textContent = '';
+
+  const isParent = State.signupRole === 'parent';
+  let payload = { role: State.signupRole };
+
+  if (isParent) {
+    const name = document.getElementById('parent-name').value.trim();
+    const childName = document.getElementById('parent-child-name').value.trim();
+    const childAge = document.getElementById('parent-child-age').value.trim();
+    const area = document.getElementById('parent-area').value.trim();
+    const email = document.getElementById('parent-email').value.trim();
+    const password = document.getElementById('parent-password').value;
+    const confirmPassword = document.getElementById('parent-confirm-password').value;
+
+    if (!name) { feedback.textContent = 'Please enter your caregiver name.'; return; }
+    if (!childName) { feedback.textContent = 'Please enter your child’s name.'; return; }
+    if (!email) { feedback.textContent = 'Please enter an email address.'; return; }
+    if (password.length < 6) { feedback.textContent = 'Password must be at least 6 characters.'; return; }
+    if (password !== confirmPassword) { feedback.textContent = 'Passwords do not match.'; return; }
+
+    payload = {
+      role: 'parent',
+      name,
+      childName,
+      childAge,
+      area,
+      email,
+      password
+    };
+  } else {
+    const name = document.getElementById('therapist-name').value.trim();
+    const profession = document.getElementById('therapist-profession').value.trim();
+    const phone = document.getElementById('therapist-phone').value.trim();
+    const area = document.getElementById('therapist-area').value.trim();
+    const activities = document.getElementById('therapist-activities').value.trim();
+    const fee = document.getElementById('therapist-fee').value;
+    const qualifications = document.getElementById('therapist-qualifications').value.trim();
+    const isDoctor = document.getElementById('therapist-is-doctor').checked;
+    const registrationNumber = document.getElementById('therapist-registration-number').value.trim();
+    const registrationCouncil = document.getElementById('therapist-registration-council').value.trim();
+    const email = document.getElementById('therapist-email').value.trim();
+    const password = document.getElementById('therapist-password').value;
+    const confirmPassword = document.getElementById('therapist-confirm-password').value;
+
+    if (!name) { feedback.textContent = 'Please enter your full name.'; return; }
+    if (!profession) { feedback.textContent = 'Please enter your professional title.'; return; }
+    if (!phone) { feedback.textContent = 'Please enter a contact phone number.'; return; }
+    if (!area) { feedback.textContent = 'Please enter your city / location.'; return; }
+    if (!activities) { feedback.textContent = 'Please enter at least one activity you offer.'; return; }
+    if (isDoctor && (!registrationNumber || !registrationCouncil)) {
+      feedback.textContent = 'Medical registration number and council are required for doctor verification.';
+      return;
+    }
+    if (!email) { feedback.textContent = 'Please enter an email address.'; return; }
+    if (password.length < 6) { feedback.textContent = 'Password must be at least 6 characters.'; return; }
+    if (password !== confirmPassword) { feedback.textContent = 'Passwords do not match.'; return; }
+
+    payload = {
+      role: 'therapist',
+      name,
+      profession,
+      phone,
+      area,
+      specialties: activities,
+      sessionFee: fee ? Number(fee) : 700,
+      qualifications,
+      isDoctor,
+      registrationNumber,
+      registrationCouncil,
+      email,
+      password
+    };
+  }
+
+  const submitBtn = document.getElementById('signup-submit-btn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span>Creating account...</span>';
+  }
+
+  try {
+    const res = await SmallStepsAPI.auth.register(payload);
+    SmallStepsAPI.auth.setToken(res.token);
+    State.user = res.user;
+    State.page = State.user.role === 'parent' ? 'discover' : 'sessions';
+    toast(`Account created! Welcome, ${State.user.name}.`);
+    render();
+  } catch (err) {
+    if (feedback) feedback.textContent = err.message || 'Registration failed. Please check your details.';
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span>Create account</span> <span aria-hidden="true">→</span>';
+    }
   }
 }
 
@@ -327,6 +392,148 @@ async function signOut() {
   State.page = 'discover';
   toast('Signed out.');
   render();
+}
+
+// ----------------------------------------------------
+// Family Profile View (Parent Workspace)
+// ----------------------------------------------------
+async function renderFamilyProfile(container) {
+  try {
+    const [bookingsRes, regsRes] = await Promise.all([
+      SmallStepsAPI.bookings.list().catch(() => ({ bookings: [] })),
+      SmallStepsAPI.community.myRegistrations().catch(() => ({ registrations: [] }))
+    ]);
+
+    const bookings = bookingsRes.bookings || [];
+    const registrations = regsRes.registrations || [];
+    const u = State.user;
+
+    container.innerHTML = `
+      <section class="family-profile-page">
+        <div class="family-profile-header" style="display:flex;align-items:center;gap:18px;margin-bottom:24px;background:#fff8dc;padding:24px;border-radius:18px;border:1px solid #e5d8a8;">
+          <div class="profile-avatar-circle" style="width:68px;height:68px;border-radius:50%;background:#cfe4a8;color:#2c5432;display:grid;place-items:center;font-size:26px;font-weight:800;border:2px solid #8ab86f;">
+            <span>${esc(initials(u.name))}</span>
+          </div>
+          <div class="profile-title-block">
+            <div class="eyebrow" style="font-size:10px;font-weight:800;letter-spacing:0.12em;color:#578744;">FAMILY WORKSPACE & CHILD PROFILE</div>
+            <h1 style="font-size:28px;margin:4px 0 2px;">${esc(u.name)}</h1>
+            <p style="margin:0;color:#6b5943;font-size:14px;">${esc(u.email)} · Child: <b>${esc(u.childName || 'Child')}</b> ${u.childAge ? `(${esc(u.childAge)})` : ''}</p>
+          </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr); gap: 24px;">
+          <!-- Left: Edit Family Profile Form -->
+          <div class="card" style="padding: 24px; background: #fffdf5; border-radius: 16px; border: 1px solid #ebdcb2;">
+            <div class="card-head" style="margin-bottom: 20px;">
+              <h2 style="font-size:20px;margin-bottom:4px;">Family & Child Details</h2>
+              <p style="color: #79664f; font-size: 13px; margin:0;">These details help pediatric activity specialists prepare personalized accommodations for your child.</p>
+            </div>
+
+            <form id="family-profile-form">
+              <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div class="field">
+                  <label for="fp-name">Caregiver full name</label>
+                  <input class="input" id="fp-name" value="${esc(u.name)}" required>
+                </div>
+                <div class="field">
+                  <label for="fp-child-name">Child’s name</label>
+                  <input class="input" id="fp-child-name" value="${esc(u.childName || '')}" required>
+                </div>
+              </div>
+
+              <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;">
+                <div class="field">
+                  <label for="fp-child-age">Child’s age / sensory profile</label>
+                  <input class="input" id="fp-child-age" placeholder="e.g. 6 years old, loves swimming" value="${esc(u.childAge || '')}">
+                </div>
+                <div class="field">
+                  <label for="fp-location">City / Neighbourhood</label>
+                  <input class="input" id="fp-location" placeholder="e.g. Indiranagar, Bengaluru" value="${esc(u.location || '')}">
+                </div>
+              </div>
+
+              <div class="field" style="margin-top: 14px;">
+                <label for="fp-phone">Contact phone number</label>
+                <input class="input" id="fp-phone" type="tel" placeholder="+91 98450 00000" value="${esc(u.phone || '')}">
+              </div>
+
+              <div class="field" style="margin-top: 14px;">
+                <label>Registered email (read only)</label>
+                <input class="input" value="${esc(u.email)}" disabled style="background:#f4eedc; cursor:not-allowed;">
+              </div>
+
+              <div style="margin-top: 22px; display: flex; gap: 12px; align-items: center;">
+                <button class="btn btn-primary" type="submit" id="save-fp-btn">Save Changes</button>
+                <span id="fp-feedback" style="font-weight: 700; font-size: 13px; color: #2e6037;"></span>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Summary & Quick Actions -->
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div class="card" style="padding: 20px; background: #eaf5e1; border: 1px solid #c2e2af; border-radius: 16px;">
+              <h3 style="margin-bottom: 12px; color: #2e5734; font-size: 17px;">Active Engagements</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: center;">
+                <div style="background: #fff; padding: 16px 12px; border-radius: 12px; border: 1px solid #d4ebc5;">
+                  <span style="font-size: 28px; font-weight: 800; color: #37633c; display: block;">${bookings.length}</span>
+                  <small style="color: #647b68; font-weight: 700; font-size: 11px;">Sessions Booked</small>
+                </div>
+                <div style="background: #fff; padding: 16px 12px; border-radius: 12px; border: 1px solid #d4ebc5;">
+                  <span style="font-size: 28px; font-weight: 800; color: #37633c; display: block;">${registrations.length}</span>
+                  <small style="color: #647b68; font-weight: 700; font-size: 11px;">Programs Enrolled</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="padding: 22px; background: #fffdf5; border: 1px solid #ebdcb2; border-radius: 16px;">
+              <h3 style="margin-bottom: 8px; font-size: 17px;">Explore Activities</h3>
+              <p style="font-size: 13px; color: #79664f; margin-bottom: 16px; line-height: 1.5;">Find verified pediatric specialists, coaches, or sensory workshops near you.</p>
+              <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="setPage('discover')">Find Activities ⌕</button>
+              <button class="btn" style="width: 100%;" onclick="setPage('calendar')">View Calendar ▦</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+
+    document.getElementById('family-profile-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const feedback = document.getElementById('fp-feedback');
+      const saveBtn = document.getElementById('save-fp-btn');
+      feedback.textContent = '';
+      saveBtn.disabled = true;
+
+      try {
+        const name = document.getElementById('fp-name').value.trim();
+        const childName = document.getElementById('fp-child-name').value.trim();
+        const childAge = document.getElementById('fp-child-age').value.trim();
+        const location = document.getElementById('fp-location').value.trim();
+        const phone = document.getElementById('fp-phone').value.trim();
+
+        const res = await SmallStepsAPI.auth.updateProfile({
+          name,
+          childName,
+          childAge,
+          location,
+          phone
+        });
+
+        State.user = { ...State.user, ...res.user };
+        toast('Family profile updated successfully!');
+        feedback.textContent = 'Saved!';
+        updateNavigation();
+        setTimeout(() => { feedback.textContent = ''; }, 3000);
+      } catch (err) {
+        feedback.style.color = '#c0392b';
+        feedback.textContent = err.message || 'Failed to save changes.';
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+  } catch (err) {
+    container.innerHTML = `<div class="error-notice">Could not load family profile: ${esc(err.message)}</div>`;
+  }
 }
 
 // ----------------------------------------------------
@@ -1678,17 +1885,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sign out button
   document.getElementById('signout')?.addEventListener('click', signOut);
 
-  // Sign in form submit
-  document.getElementById('signin-form')?.addEventListener('submit', handleAuthSubmit);
+  // Sign in & Sign up form submits
+  document.getElementById('signin-form')?.addEventListener('submit', handleSignIn);
+  document.getElementById('signup-form')?.addEventListener('submit', handleSignUp);
 
-  // Auth toggle buttons
+  // Auth mode switchers (Sign in vs Create account)
   document.querySelectorAll('[data-auth-mode]').forEach(btn => {
     btn.addEventListener('click', () => setAuthMode(btn.dataset.authMode));
   });
 
-  document.querySelectorAll('[data-signin-role]').forEach(btn => {
-    btn.addEventListener('click', () => setSignInRole(btn.dataset.signinRole));
+  // Registration role switcher (Family vs Specialist)
+  document.querySelectorAll('.signup-role-btn').forEach(btn => {
+    btn.addEventListener('click', () => setSignupRole(btn.dataset.signupRole));
   });
+
+  // Doctor checkbox toggle
+  document.getElementById('therapist-is-doctor')?.addEventListener('change', (e) => {
+    const doctorFields = document.getElementById('therapist-doctor-fields');
+    if (doctorFields) doctorFields.hidden = !e.target.checked;
+  });
+
+  // Quick text link switches
+  document.getElementById('link-to-signup')?.addEventListener('click', () => setAuthMode('signup'));
+  document.getElementById('link-to-signin')?.addEventListener('click', () => setAuthMode('signin'));
 
   // Escape key closes modals
   document.addEventListener('keydown', (e) => {
